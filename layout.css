@@ -1,0 +1,72 @@
+<style >
+
+* {
+  box-sizing: border-box;
+}
+header {
+  background-color:black;
+  padding: 30px;
+  text-align: center;
+  font-size: 30px;
+  color: white;
+}
+nav {
+  float: left;
+  width: 30%;
+  height: 300px; /* only for demonstration, should be removed */
+  background: #ccc;
+  padding: 20px;
+  box-sizing: border-box;
+}
+nav ul {
+  list-style-type: none;
+  padding: 50;
+}
+
+li a{
+  display: block;
+  color:black;
+  text-decoration: none;
+  padding: 5
+}
+
+li a:hover {
+  color: white
+}
+
+article {
+  float: left;
+  padding: 20px;
+  width: 70%;
+  background-color: #f1f1f1;
+  height: 300px; /* only for demonstration, should be removed */
+  box-sizing: border-box;
+}
+article h3 {
+  color: green;
+}
+article p{
+  color: gray;
+}
+section:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+@media (max-width: 600px) {
+  nav, article {
+    width: 100%;
+    height: auto;
+  }
+}
+footer {
+  background-color: gray;
+  padding: 30px;
+  text-align: center;
+  font-size: 30px;
+  color: white;
+}
+</style>
+
