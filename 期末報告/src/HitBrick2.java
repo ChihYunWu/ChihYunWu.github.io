@@ -1,8 +1,8 @@
-import javax.imageio.ImageIO;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -12,10 +12,7 @@ import java.util.Random;
 import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
+
 import java.net.Socket;
 import java.awt.*;
 
@@ -35,9 +32,12 @@ class InitFrame extends JFrame {
 
     private double degree = 30.0;
     private JLabel ball;
-    private int step = 4;
+    private int step = 5;
     private Brick b;
     private Plank p;
+    private int score = 0;
+    private JLabel scoreLabel;
+    private JPanel buttonPanel;
 
     public InitFrame() {
         super("HitBrick");
@@ -64,13 +64,15 @@ class InitFrame extends JFrame {
         });
 
         JPanel gamePanel = new JPanel();
-        JPanel buttonPanel = new JPanel();
+        buttonPanel = new JPanel();
+        scoreLabel = new JLabel("score: " + Integer.toString(score));
         Icon ballpic = new ImageIcon("ball.png");
         ball = new JLabel(ballpic);
 
         buttonPanel.add(start);
         buttonPanel.add(stop);
         buttonPanel.add(rank);
+        buttonPanel.add(scoreLabel);
         buttonPanel.setPreferredSize(new Dimension(495, 40));
         gamePanel.setPreferredSize(new Dimension(495, 580));
         gamePanel.setBackground(Color.BLACK);
@@ -85,11 +87,47 @@ class InitFrame extends JFrame {
         gamePanel.add(ball, BorderLayout.CENTER);
         gamePanel.add(p, BorderLayout.SOUTH);
         gamePanel.add(b, BorderLayout.NORTH);
+
         add(buttonPanel, BorderLayout.NORTH);
         add(gamePanel, BorderLayout.SOUTH);
         gamePanel.addKeyListener(p);
 
         startBall();
+    }
+
+    private void saveScore(JFrame f) {
+        Socket socket;
+        DataOutputStream output;
+        DataInputStream input;
+        String message;
+        String userName;
+        try {
+
+            userName = JOptionPane.showInputDialog("Enter your Name");
+            socket = new Socket("127.0.0.1", 8777);
+            if (socket.isConnected()) {
+                System.out.println("connect");
+                output = new DataOutputStream(socket.getOutputStream());
+                input = new DataInputStream(socket.getInputStream());
+                output.writeUTF("save");
+                output.writeUTF(userName);
+                output.writeInt(score);
+                message = (String) input.readUTF();
+
+                JOptionPane.showMessageDialog(f, userName + " got " + score + "\n" + message, "GameOver",
+                        JOptionPane.PLAIN_MESSAGE);
+
+                output.close();
+                socket.close();
+                if (socket.isClosed()) {
+                    System.out.println("connection close");
+                }
+            }
+        } catch (Exception x) {
+            x.printStackTrace();
+
+        }
+
     }
 
     private void getRank(JFrame f) {
@@ -104,15 +142,15 @@ class InitFrame extends JFrame {
                 System.out.println("connect");
                 input = new DataInputStream(socket.getInputStream());
                 output = new DataOutputStream(socket.getOutputStream());
+                output.writeUTF("rank");
                 rank = (String) input.readUTF();
                 System.out.println(rank);
 
                 JOptionPane.showMessageDialog(f, rank, "Rank", JOptionPane.PLAIN_MESSAGE);
 
                 input.close();
-                output.close();
                 socket.close();
-                if(socket.isClosed()){
+                if (socket.isClosed()) {
                     System.out.println("connection close");
                 }
             }
@@ -169,6 +207,7 @@ class InitFrame extends JFrame {
                             && ball.getX() > (-250 + i * 49) && ball.getX() < (-250 + (i + 1) * 50)) {
                         Point decidePosition = ball.getLocation();
                         b.brickCheck[i][j] = false;
+                        score++;
                         if (decidePosition.getY() > (-200 + j * 33) && (ball.getY() < (-200 + (j + 1) * 28))) {
                             RLrotateDegree();
                         } else {
@@ -199,7 +238,23 @@ class InitFrame extends JFrame {
                 UDrotateDegree();
             } else {
                 ballGo.stop();
+                saveScore(this);
             }
+        }
+    }
+
+    private void gameWin() {
+        boolean isWin = true;
+        for (int i = 0; i < b.row; i++) {
+            for (int j = 0; j < b.column; j++) {
+                if (b.brickCheck[i][j]) {
+                    isWin = false;
+                }
+            }
+        }
+        if (isWin) {
+            saveScore(this);
+            ballGo.stop();
         }
     }
 
@@ -234,6 +289,7 @@ class InitFrame extends JFrame {
                     break;
 
                 }
+                gameWin();
 
             }
         });
