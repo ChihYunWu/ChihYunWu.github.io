@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="D:/學校/大三/上學期/進階物導/作業/HW6/mongodb-driver-core-3.11.2.jar"/>
+	<classpathentry kind="lib" path="D:/學校/大三/上學期/進階物導/作業/HW6/mongodb-driver-legacy-3.11.2.jar"/>
+	<classpathentry kind="lib" path="D:/學校/大三/上學期/進階物導/作業/HW6/mongodb-driver-sync-3.11.2.jar"/>
+	<classpathentry kind="lib" path="D:/學校/大三/上學期/進階物導/作業/HW6/bson-3.11.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -27,14 +27,25 @@ class InitFrame extends JFrame {
 
     private double degree = 30.0;
     private JLabel ball;
-    private int step = 5;
+    private int step = 4;
+    private Brick b;
+    private Plank p;
 
     public InitFrame() {
         super("HitBrick");
         setLayout(new BorderLayout());
 
         JButton start = new JButton("Start");
+
+        start.addActionListener(e -> {
+            ballGo.start();
+        });
+
         JButton stop = new JButton("Stop");
+        stop.addActionListener(e -> {
+            ballGo.stop();
+        });
+
         JPanel gamePanel = new JPanel();
         JPanel buttonPanel = new JPanel();
         Icon ballpic = new ImageIcon("ball.png");
@@ -49,8 +60,8 @@ class InitFrame extends JFrame {
         gamePanel.setFocusable(true);
 
         gamePanel.setLayout(new BorderLayout());
-        Plank p = new Plank();
-        Brick b = new Brick();
+        p = new Plank();
+        b = new Brick();
         gamePanel.add(ball, BorderLayout.CENTER);
         gamePanel.add(p, BorderLayout.SOUTH);
         gamePanel.add(b, BorderLayout.NORTH);
@@ -61,12 +72,8 @@ class InitFrame extends JFrame {
     }
 
     enum BallState {
-        WALK, MAYHIT
+        WALK, MAYHIT, MAYPLANK
     }
-
-    // enum HitState {
-    //     UPandDOWN_HIT, RandL_HIT, NONE_HIT
-    // }
 
     private void walkBall(double degree) {
         int x = ball.getX(), y = ball.getY();
@@ -80,66 +87,124 @@ class InitFrame extends JFrame {
     }
 
     private void UDrotateDegree() {
-        // degree = degree + 180.0;
         degree = 360 - degree;
-        
+
     }
 
     private void RLrotateDegree() {
-        // degree = 360.0 - degree;
         degree = 180.0 - degree;
     }
 
-    // private HitState hitState = HitState.NONE_HIT;
-
-    private void decideHitState() {
-        System.out.printf("%d,%d %n",ball.getX(),ball.getY());
-        // System.out.println(ball.getY());
+    private void HitWall() {
         if (ball.getY() <= -200 || ball.getY() >= 350) {
-            // hitState = HitState.UPandDOWN_HIT;
+
             UDrotateDegree();
         } else if (ball.getX() <= -250 || ball.getX() >= 250) {
-            // hitState = HitState.RandL_HIT;
+
             RLrotateDegree();
         } else {
-            // hitState = HitState.NONE_HIT;
+
         }
     }
 
-    private void startBall() {
-        BallState ballState = BallState.WALK;
+    // -49~-200
+    private void HitBircks() {
 
-        new Timer(10, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                walkBall(degree);
-                decideHitState();
-                // switch (ballState) {
-
-                // case WALK:
-                // walkBall(degree);
-                // decideHitState();
-                // break;
-                // case MAYHIT:
-                // // checkHitBall(degree);
-                // break;
-                // }
+        for (int i = 0; i < b.row; i++) {
+            for (int j = 0; j < b.column; j++) {
+                // if ballPoint in ij then decide hit ij
+                if (b.brickCheck[i][j]) {
+                    if (ball.getY() > (-200 + j * 31) && (ball.getY() < (-200 + (j + 1) * 30))
+                            && ball.getX() > (-250 + i * 49) && ball.getX() < (-250 + (i + 1) * 50)) {
+                        Point decidePosition = ball.getLocation();
+                        b.brickCheck[i][j] = false;
+                        if (decidePosition.getY() > (-200 + j * 33) && (ball.getY() < (-200 + (j + 1) * 28))) {
+                            RLrotateDegree();
+                        } else {
+                            UDrotateDegree();
+                        }
+                    }
+                }
             }
-        }).start();
-        ;
+        }
+        if (ball.getY() <= -200) {
+            UDrotateDegree();
+        } else if (ball.getX() <= -250 || ball.getX() >= 250) {
+            RLrotateDegree();
+        } else {
+        }
+    }
+
+    private void HitPlank() {
+        if (ball.getX() <= -250 || ball.getX() >= 250) {
+            RLrotateDegree();
+        }
+        if (ball.getY() > 350) {
+
+            int ballx = ball.getX();
+            int px = p.plankX() - 250;
+            System.out.println(ballx);
+            System.out.println(px);
+            if (ballx > px && ballx < px + 195) {
+                UDrotateDegree();
+            } else {
+                ballGo.stop();
+            }
+        }
+    }
+
+    Timer ballGo;
+
+    private void startBall() {
+
+        ballGo = new Timer(10, new ActionListener() {
+            BallState ballState = BallState.WALK;
+
+            public void actionPerformed(ActionEvent e) {
+                // System.out.println(ballState);
+                if (ball.getY() < -70) {
+                    ballState = BallState.MAYHIT;
+                } else if (ball.getY() > 300) {
+                    ballState = BallState.MAYPLANK;
+                } else {
+                    ballState = BallState.WALK;
+
+                }
+                walkBall(degree);
+                switch (ballState) {
+                case WALK:
+                    HitWall();
+                    break;
+
+                case MAYHIT:
+                    HitBircks();
+                    break;
+                case MAYPLANK:
+                    HitPlank();
+                    break;
+
+                }
+
+            }
+        });
     }
 
 }
 
 class Plank extends JPanel implements KeyListener {
 
-    private int x = 195;
-    private int y = 0;
-    private int width = 100;
-    private int height = 15;
+    public int x = 195;
+    public int y = 0;
+    public int width = 100;
+    public int height = 15;
 
     public Plank() {
         setPreferredSize(new Dimension(495, 15));
         setBackground(Color.BLACK);
+    }
+
+    public int plankX() {
+        return x;
     }
 
     @Override
@@ -171,12 +236,12 @@ class Plank extends JPanel implements KeyListener {
 }
 
 class Brick extends JPanel {
-    private int brickWidth = 48;
-    private int brickHeight = 30;
-    private int row = 10;
-    private int column = 5;
-    private boolean[][] brickCheck = new boolean[row][column];
-    private Color[] randomColor = { Color.RED, Color.white, Color.BLUE, Color.YELLOW, Color.orange };
+    public int brickWidth = 48;
+    public int brickHeight = 30;
+    public int row = 10;
+    public int column = 5;
+    public boolean[][] brickCheck = new boolean[row][column];
+    public Color[] randomColor = { Color.RED, Color.white, Color.BLUE, Color.YELLOW, Color.orange };
     Random k = new Random();
 
     public Brick() {
