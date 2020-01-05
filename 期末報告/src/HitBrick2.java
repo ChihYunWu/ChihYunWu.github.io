@@ -13,7 +13,8 @@ import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import java.net.Socket;
+import java.net.*;
+
 import java.awt.*;
 
 public class HitBrick2 {
@@ -120,7 +121,11 @@ class InitFrame extends JFrame {
 		try {
 
 			userName = JOptionPane.showInputDialog("Enter your Name");
-			socket = new Socket("127.0.0.1", 8777);
+			// socket = new Socket("127.0.0.1", 8777);
+			socket = new Socket();
+			SocketAddress address = new InetSocketAddress("143.0.0.143", 8777);
+			socket.connect(address, 5000);
+
 			if (socket.isConnected()) {
 				System.out.println("connect");
 				output = new DataOutputStream(socket.getOutputStream());
@@ -139,6 +144,10 @@ class InitFrame extends JFrame {
 					System.out.println("connection close");
 				}
 			}
+		} catch (SocketTimeoutException x) {
+			JOptionPane.showMessageDialog(f, " got " + score + "\n" + "time out", "GameOver",
+					JOptionPane.PLAIN_MESSAGE);
+			x.printStackTrace();
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(f, " got " + score, "GameOver", JOptionPane.PLAIN_MESSAGE);
 			x.printStackTrace();
@@ -154,7 +163,11 @@ class InitFrame extends JFrame {
 		String rank;
 
 		try {
-			socket = new Socket("127.0.0.1", 8777);
+			// socket = new Socket("127.0.0.1", 8777);
+			socket = new Socket();
+			SocketAddress address = new InetSocketAddress("143.0.0.143", 8777);
+			socket.connect(address, 5000);
+
 			if (socket.isConnected()) {
 				System.out.println("connect");
 				input = new DataInputStream(socket.getInputStream());
@@ -171,6 +184,10 @@ class InitFrame extends JFrame {
 					System.out.println("connection close");
 				}
 			}
+		} catch (SocketTimeoutException x) {
+			JOptionPane.showMessageDialog(f, "no message" + "\n" + "time out", "Rank", JOptionPane.PLAIN_MESSAGE);
+			;
+			x.printStackTrace();
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(f, "no message", "Rank", JOptionPane.PLAIN_MESSAGE);
 			x.printStackTrace();
