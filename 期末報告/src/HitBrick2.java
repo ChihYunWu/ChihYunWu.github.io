@@ -43,7 +43,7 @@ class InitFrame extends JFrame {
 
 	private double degree = 30.0;
 	private JLabel ball;
-	private int step = 5;
+	private int step = 10;
 	private Brick b;
 	private Plank p;
 	private int score = 0;
@@ -123,7 +123,7 @@ class InitFrame extends JFrame {
 			userName = JOptionPane.showInputDialog("Enter your Name");
 			// socket = new Socket("127.0.0.1", 8777);
 			socket = new Socket();
-			SocketAddress address = new InetSocketAddress("143.0.0.143", 8777);
+			SocketAddress address = new InetSocketAddress("140.118.9.156", 8777);
 			socket.connect(address, 5000);
 
 			if (socket.isConnected()) {
@@ -165,7 +165,7 @@ class InitFrame extends JFrame {
 		try {
 			// socket = new Socket("127.0.0.1", 8777);
 			socket = new Socket();
-			SocketAddress address = new InetSocketAddress("143.0.0.143", 8777);
+			SocketAddress address = new InetSocketAddress("140.118.9.156", 8777);
 			socket.connect(address, 5000);
 
 			if (socket.isConnected()) {
